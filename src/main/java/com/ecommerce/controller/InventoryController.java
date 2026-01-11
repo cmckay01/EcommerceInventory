@@ -1,6 +1,7 @@
 package com.ecommerce.controller;
 
 import com.ecommerce.model.Inventory;
+import com.ecommerce.repository.InventoryRepository;
 import com.ecommerce.service.InventoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,6 +16,14 @@ import java.util.List;
 public class InventoryController {
     
     private final InventoryService inventoryService;
+    private final InventoryRepository inventoryRepository;
+    
+    @GetMapping("/{id}")
+    public ResponseEntity<Inventory> getInventoryById(@PathVariable Long id) {
+        return inventoryRepository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
     
     @GetMapping("/{productId}/{warehouseId}")
     public ResponseEntity<Inventory> getInventory(

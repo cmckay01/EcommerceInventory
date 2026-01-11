@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -48,13 +49,22 @@ public class InventoryService {
         Warehouse warehouse = warehouseRepository.findById(warehouseId)
                 .orElseThrow(() -> new RuntimeException("Warehouse not found"));
         
-        Inventory inventory = Inventory.builder()
-                .product(product)
-                .warehouse(warehouse)
-                .quantity(initialQuantity)
-                .build();
+        // Create inventory manually instead of using builder
+        Inventory inventory = new Inventory();
+        inventory.setProduct(product);
+        inventory.setWarehouse(warehouse);
+        inventory.setQuantity(initialQuantity);
+        inventory.setReservedQuantity(0);
+        inventory.setReorderLevel(10);  // Default reorder level
+        inventory.setReorderQuantity(20); // Default reorder quantity
+        inventory.setCreatedAt(LocalDateTime.now());
+        inventory.setUpdatedAt(LocalDateTime.now());
         
-        return inventoryRepository.save(inventory);
+        Inventory saved = inventoryRepository.save(inventory);
+        log.info("Created inventory for product {} in warehouse {} with quantity {}", 
+                productId, warehouseId, initialQuantity);
+        
+        return saved;
     }
     
     @Transactional
